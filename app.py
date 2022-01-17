@@ -28,8 +28,10 @@ if __name__ == "__main__":
                 args=(CONFIG.ASYNCH_URL, CONFIG.DEVICE_ID, True)
                 ).start()
 
-    threading.Timer(4, Utility_FUNC.publish_measurements,
-            args=('127.0.0.1', CONFIG.DEVICE_ID, True)
-            ).start()
+    send_ =threading.Timer(4, Utility_FUNC.publish_measurements,
+            args=( CONFIG.DEVICE_ID,'127.0.0.1:5000')
+            )
+    send_.daemon = True
+    send_.start()
     
     app.run(host=CONFIG.LocIP, port=CONFIG.LocPort)
