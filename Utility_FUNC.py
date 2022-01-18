@@ -56,7 +56,7 @@ def publish_measurements(external_ID,url):
                                         json={"class_pred": str(pred)})
             req_V=requests.post(url=f'{CONFIG.SYNCH_URL}/sendMeasurement?externalId={external_ID}&fragment=CurrentMeasurement&value={row["RMS Current (A)"]}&unit=A')
             req_A=requests.post(url=f'{CONFIG.SYNCH_URL}/sendMeasurement?externalId={external_ID}&fragment=VoltageMeasurement&value={row["RMS Voltage (V)"]}&unit=V')
-            req_P=requests.post(url=f'{CONFIG.SYNCH_URL}/sendMeasurement?externalId={external_ID}&fragment=PowerMeasurement&\value={row["Power (W)"]}&unit=W' )
+            req_P=requests.post(url=f'{CONFIG.SYNCH_URL}/sendMeasurement?externalId={external_ID}&fragment=PowerMeasurement&value={row["Power (W)"]}&unit=W' )
 
             print( f'{req_A.status_code}, {req_V.status_code}, {req_P.status_code}, {req_pred.status_code}, {external_ID}')
             # print(row['RMS_Current(A)'],
