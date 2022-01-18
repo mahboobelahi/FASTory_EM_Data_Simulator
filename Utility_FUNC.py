@@ -1,5 +1,16 @@
 import requests, csv, time
 import configurations as CONFIG
+from keras.models import  load_model
+import joblib
+import numpy as np
+
+
+
+model_3 = load_model('M_iter3_1.h5',compile=True)
+
+# loading MinMaxScaler Objects
+Load_scaler = joblib.load('pallet-scaler.save')
+Power_scaler = joblib.load('Power-scaler.save')
 
 def sub_or_Unsubscribe_DataSource(ASYNCH_URL,DEVICE_ID,subs=False):
     
@@ -28,14 +39,30 @@ def publish_measurements(external_ID,url):
 
         for row in reader:
             time.sleep(1)
+            Power = row["Power (W)"]
+            load = row["Load Combinations"]
+            features_1= np.array(np.append( Power_scaler.transform( [[Power]] ),
+                                 Load_scaler.transform( [[load]] ) ),
+                                  ndmin=2)
+            pred = model_3.predict(features_1)
+            pred = np.argmax(pred, axis = 1)[0]
+            print(f'Load_{load}, Power_{Power}')
+            print(pred) 
+            payload = {"externalId":external_ID,
+                       "fragment": f'belt-tension-class-pred'
+                        }   
+            req_pred = requests.post(f'{CONFIG.SYNCH_URL}/sendCustomMeasurement',
+                                        params=payload,
+                                        json={"class_pred": str(pred)})
             req_V=requests.post(url=f'{CONFIG.SYNCH_URL}/sendMeasurement?externalId={external_ID}&fragment=CurrentMeasurement&value={row["RMS Current (A)"]}&unit=A')
             req_A=requests.post(url=f'{CONFIG.SYNCH_URL}/sendMeasurement?externalId={external_ID}&fragment=VoltageMeasurement&value={row["RMS Voltage (V)"]}&unit=V')
+            req_P=requests.post(url=f'{CONFIG.SYNCH_URL}/sendMeasurement?externalId={external_ID}&fragment=PowerMeasurement&\value={row["Power (W)"]}&unit=W' )
 
-            req_P=requests.post(url=f'{CONFIG.SYNCH_URL}/sendMeasurement?externalId={external_ID}&fragment=PowerMeasurement&value={row["Power (W)"]}&unit=W' )
-            print( f'{req_A}, {req_V} ,{req_P.status_code}, {external_ID}')
+            print( f'{req_A.status_code}, {req_V.status_code}, {req_P.status_code}, {req_pred.status_code}, {external_ID}')
             # print(row['RMS_Current(A)'],
             #       row['RMS_Voltage(V)'],
             #       row['Power(W)'])
         url=url+'/simulate'
         req= requests.get(url)
- 
+        print(req.status_code, 'All records have been processed.')
+
