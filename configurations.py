@@ -7,7 +7,7 @@
 LocIP = '0.0.0.0'#'192.168.1.2'
 LocPort = 5000
 FlaskPort = 5001
-FILE_NAME = 's_Measurements10.csv'
+FILE_NAME = 'testData_349.csv' #'s_Measurements10.csv', 'traningData_349.csv'
 #ZDMP DAQ and M&S BUS
 DEVICE_ID = '104EM'
 DEVICE_NAME = 'TAU_Workstation_10'
