@@ -15,7 +15,7 @@ def welcom():
 @app.route('/simulate', methods= ['GET'])
 def simulateData():
     id= CONFIG.DEVICE_ID
-    url= '127.0.0.1:5000'
+    url= 'http://127.0.0.1:5000'
     thread = threading.Timer(.1, Utility_FUNC.publish_measurements,args=(id,url))
     thread.daemon=True
     thread.start()
@@ -32,7 +32,7 @@ if __name__ == "__main__":
                 ).start()
 
     send_ =threading.Timer(4, Utility_FUNC.publish_measurements,
-            args=( CONFIG.DEVICE_ID,'127.0.0.1:5000')
+            args=( CONFIG.DEVICE_ID,'http://127.0.0.1:5000')
             )
     send_.daemon = True
     send_.start()

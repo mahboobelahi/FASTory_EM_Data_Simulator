@@ -4,6 +4,9 @@ from keras.models import  load_model
 import joblib
 import numpy as np
 
+import emit_to_topic as emit
+emit.connect_to_bus()
+
 
 
 model_3 = load_model('M_iter3_1.h5',compile=True)
@@ -38,27 +41,30 @@ def publish_measurements(external_ID,url):
         reader = csv.DictReader(file)
 
         for row in reader:
-            time.sleep(1)
+            
             Power = row["Power (W)"]
             load = row["Load Combinations"]
-            features_1= np.array(np.append( Power_scaler.transform( [[Power]] ),
+            features_1= np.round(np.array(np.append( Power_scaler.transform( [[Power]] ),
                                  Load_scaler.transform( [[load]] ) ),
-                                  ndmin=2)
-            pred = model_3.predict(features_1)
-            pred = np.argmax(pred, axis = 1)[0]
-            print(f'Load_{load}, Power_{Power}')
-            print(pred) 
+                                  ndmin=2),4)
+            emit.publish_Tclass([features_1[0][0],features_1[0][1]])
+            #pred = model_3.predict(features_1)
+            #pred = np.argmax(pred, axis = 1)[0]
+            #print(f'Load_{load}, Power_{Power}, {features_1}')
+            #print(pred) 
             payload = {"externalId":external_ID,
                        "fragment": f'belt-tension-class-pred'
                         }   
             req_pred = requests.post(f'{CONFIG.SYNCH_URL}/sendCustomMeasurement',
                                         params=payload,
-                                        json={"class_pred": str(pred)})
+                                        json={"powerConsumption": features_1[0][0],
+                                                "load":features_1[0][1]})#json={"class_pred": str(pred)
             req_V=requests.post(url=f'{CONFIG.SYNCH_URL}/sendMeasurement?externalId={external_ID}&fragment=CurrentMeasurement&value={row["RMS Current (A)"]}&unit=A')
             req_A=requests.post(url=f'{CONFIG.SYNCH_URL}/sendMeasurement?externalId={external_ID}&fragment=VoltageMeasurement&value={row["RMS Voltage (V)"]}&unit=V')
             req_P=requests.post(url=f'{CONFIG.SYNCH_URL}/sendMeasurement?externalId={external_ID}&fragment=PowerMeasurement&value={row["Power (W)"]}&unit=W' )
 
-            print( f'{req_A.status_code}, {req_V.status_code}, {req_P.status_code}, {req_pred.status_code}, {external_ID}')
+            print( f'{req_A.status_code}, {req_V.status_code}, {req_P.status_code}, {req_pred.status_code}, {external_ID}',{row["Class_3"]})
+            time.sleep(5)
             # print(row['RMS_Current(A)'],
             #       row['RMS_Voltage(V)'],
             #       row['Power(W)'])

@@ -1,5 +1,5 @@
 *.png
-.FASTory/
+FASTory/
 *.pyc
 .__pycache__/
 .idea/
