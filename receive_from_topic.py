@@ -2,6 +2,8 @@
 import pika
 import sys
 import ssl
+import json
+from txtToJson import predict
 
 LOCALHOST = "localhost"
 SERVER = "192.168.100.100"
@@ -11,7 +13,7 @@ PASSWORD = "ZDMP-tau2020!"
 CA_CERT = "./files/ca_certificate.pem"
 
 EXCHANGE = "amq.topic"
-ROUTING_KEY = "output_topic"
+ROUTING_KEY ="T5_1-Data-Acquisition.Datasource ID: 104EM - MultiTopic.Measurements.belt-tension-class-pred"#"output_topic"
 
 try:
     context = ssl.create_default_context(cafile=CA_CERT)
@@ -38,7 +40,9 @@ print(' [*] Waiting for logs. To exit press CTRL+C')
 
 
 def callback(ch, method, properties, body):
-    print(" [x] %r:%r" % (method.routing_key, body))
+    #print(" [x] %r" % (method.routing_key))
+    print(" [x] %r" % (json.loads(body)))
+    print(" [x] %r" % (predict(**json.loads(body)) ))
 
 
 channel.basic_consume(
