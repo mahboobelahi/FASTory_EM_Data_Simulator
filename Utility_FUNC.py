@@ -47,7 +47,7 @@ def publish_measurements(external_ID,url):
             features_1= np.round(np.array(np.append( Power_scaler.transform( [[Power]] ),
                                  Load_scaler.transform( [[load]] ) ),
                                   ndmin=2),4)
-            emit.publish_Tclass([features_1[0][0],features_1[0][1]])
+            #emit.publish_Tclass([features_1[0][0],features_1[0][1]])
             #pred = model_3.predict(features_1)
             #pred = np.argmax(pred, axis = 1)[0]
             #print(f'Load_{load}, Power_{Power}, {features_1}')

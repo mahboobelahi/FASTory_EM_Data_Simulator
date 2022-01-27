@@ -41,8 +41,8 @@ print(' [*] Waiting for logs. To exit press CTRL+C')
 
 def callback(ch, method, properties, body):
     #print(" [x] %r" % (method.routing_key))
-    print(" [x] %r" % (json.loads(body)))
-    print(" [x] %r" % (predict(**json.loads(body)) ))
+    #print(" [x] %r" % (json.loads(body)))
+    predict(**json.loads(body))
 
 
 channel.basic_consume(

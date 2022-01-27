@@ -40,6 +40,7 @@ def predict(*args,**kwargs):
     model = tf.keras.models.load_model('M_iter3_1.h5', compile=True)
     pred = np.argmax(model.predict(features_1), axis=1) # need to pus that vakue to message bus
     json_results = json.dumps({"BT_Class":str(pred)}, indent=4)
+    print(f"[X] {json_results}")
     return json_results
 """
     from predict import predict
