@@ -5,7 +5,7 @@ import joblib
 import numpy as np
 
 import emit_to_topic as emit
-emit.connect_to_bus()
+#emit.connect_to_bus()
 
 
 
@@ -55,19 +55,25 @@ def publish_measurements(external_ID,url):
             payload = {"externalId":external_ID,
                        "fragment": f'belt-tension-class-pred'
                         }   
-            req_pred = requests.post(f'{CONFIG.SYNCH_URL}/sendCustomMeasurement',
-                                        params=payload,
-                                        json={"powerConsumption": features_1[0][0],
-                                                "load":features_1[0][1]})#json={"class_pred": str(pred)
-            req_V=requests.post(url=f'{CONFIG.SYNCH_URL}/sendMeasurement?externalId={external_ID}&fragment=CurrentMeasurement&value={row["RMS Current (A)"]}&unit=A')
-            req_A=requests.post(url=f'{CONFIG.SYNCH_URL}/sendMeasurement?externalId={external_ID}&fragment=VoltageMeasurement&value={row["RMS Voltage (V)"]}&unit=V')
-            req_P=requests.post(url=f'{CONFIG.SYNCH_URL}/sendMeasurement?externalId={external_ID}&fragment=PowerMeasurement&value={row["Power (W)"]}&unit=W' )
+            try:
+                req_pred = requests.post(f'{CONFIG.SYNCH_URL}/sendCustomMeasurement',
+                                            params=payload,
+                                            json={"powerConsumption": features_1[0][0],
+                                                    "load":features_1[0][1]})#json={"class_pred": str(pred)
+                req_V=requests.post(url=f'{CONFIG.SYNCH_URL}/sendMeasurement?externalId={external_ID}&fragment=CurrentMeasurement&value={row["RMS Current (A)"]}&unit=A')
+                req_A=requests.post(url=f'{CONFIG.SYNCH_URL}/sendMeasurement?externalId={external_ID}&fragment=VoltageMeasurement&value={row["RMS Voltage (V)"]}&unit=V')
+                req_P=requests.post(url=f'{CONFIG.SYNCH_URL}/sendMeasurement?externalId={external_ID}&fragment=PowerMeasurement&value={row["Power (W)"]}&unit=W' )
 
-            print( f'{req_A.status_code}, {req_V.status_code}, {req_P.status_code}, {req_pred.status_code}, {external_ID}',{row["Class_3"]})
+                print( f'{req_A.status_code}, {req_V.status_code}, {req_P.status_code}, {req_pred.status_code}, {external_ID}',{row["Class_3"]})
+                
+            except requests.exceptions.RequestException as e:
+                print("[X] ",e)
+            
             time.sleep(5)
-            # print(row['RMS_Current(A)'],
-            #       row['RMS_Voltage(V)'],
-            #       row['Power(W)'])
+            # print("[X] RMS_Current(A)",row.get('RMS Current (A)','Key-Not-Found'),
+            #       "RMS_Voltage(V)",row.get('RMS Voltage (V)','Key-Not-Found'),
+            #       "Power(W)",row.get('Power(W)','Key-Not-Found'))
+
         url=url+'/simulate'
         req= requests.get(url)
         print(req.status_code, 'All records have been processed.')
